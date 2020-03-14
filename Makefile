@@ -1,5 +1,7 @@
 
-R := Rscript $^ $@
+default: bpsamples.rds
+
+R = Rscript $^ $@
 
 # create the branching process samples
 bpsamples.rds: bpsamples.R params.json
