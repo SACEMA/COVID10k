@@ -54,13 +54,11 @@ chunk <- as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1)))
 
 set.seed(chunk*13 + 42)
 #' create chains with bpmodels
-tmg <- system.time(chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
+chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
   offspring = type,
   infinite = target, tree = TRUE, t0 = t0,
   serial = rserial, mu = mu, size = size
-)))), key = c("n", "time")))
-
-warning(tmg)
+)))), key = c("n", "time"))
 
 chains[,
   nmod := (n-1) %/% i0
