@@ -8,6 +8,10 @@ suppressPackageStartupMessages({
     install.packages("jsonlite")
     if (!require(jsonlite)) stop("failed to include / install jsonlite")
   }
+  if (!require(data.table)) {
+    install.packages("data.table")
+    if (!require(data.table)) stop("failed to include / install data.table")
+  }
 })
 
 
@@ -20,6 +24,12 @@ params <- read_json(.args[1], simplifyVector = T)
 
 n <- as.integer(params$samples)
 i0 <- as.integer(params$initial)
+if (length(i0) == 1) {
+  t0 <- rep(0, i0*n)
+} else {
+  t0 <- rep(i0, times = n)
+  i0 <- length(i0)
+}
 
 getpars <- function(distro_from_json) with(distro_from_json, dynGet(
   "pars", ifnotfound = {
@@ -40,9 +50,22 @@ getr <- function(distro_from_json) with(distro_from_json, {
 rserial <- getr(params$serial)
 roffspring <- getr(params$offspring)
 
+set.seed(1234)
 #' create chains with bpmodels
-#' TODO
-res <- data.table()
+chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
+  offspring = type,
+  infinite = target, tree = TRUE, t0 = t0,
+  serial = rserial, mu = mu, size = size
+)))), key = c("n", "time"))
+
+chains[,
+  nmod := (n-1) %/% i0
+][,
+  day := floor(time)
+]
+
+res <- chains[, .N, keyby = .(sample_id = nmod, day)]
+res[, cumcase := cumsum(N), by = sample_id]
 
 #' save digested results to file
 
