@@ -52,11 +52,13 @@ roffspring <- getr(params$offspring)
 
 set.seed(1234)
 #' create chains with bpmodels
-chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
+tmg <- system.time(chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
   offspring = type,
   infinite = target, tree = TRUE, t0 = t0,
   serial = rserial, mu = mu, size = size
-)))), key = c("n", "time"))
+)))), key = c("n", "time")))
+
+warning(tmg)
 
 chains[,
   nmod := (n-1) %/% i0
