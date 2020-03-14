@@ -15,14 +15,14 @@ suppressPackageStartupMessages({
 })
 
 
-.args <- c("params.json", "bpsamples.rds")
+.args <- c("params.json", "bpsamples-00.rds")
 .args <- commandArgs(trailingOnly = TRUE)
 
 #' load parameters from json file
 #' TODO
 params <- read_json(.args[1], simplifyVector = T)
 
-n <- as.integer(params$samples)
+n <- as.integer(params$samples)/as.integer(params$chunks)
 i0 <- as.integer(params$initial)
 if (length(i0) == 1) {
   t0 <- rep(0, i0*n)
@@ -50,7 +50,9 @@ getr <- function(distro_from_json) with(distro_from_json, {
 rserial <- getr(params$serial)
 roffspring <- getr(params$offspring)
 
-set.seed(1234)
+chunk <- as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1)))
+
+set.seed(chunk*13 + 42)
 #' create chains with bpmodels
 tmg <- system.time(chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
   offspring = type,
