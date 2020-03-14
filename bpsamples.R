@@ -16,7 +16,29 @@ suppressPackageStartupMessages({
 
 #' load parameters from json file
 #' TODO
-params <- list()
+params <- read_json(.args[1], simplifyVector = T)
+
+n <- as.integer(params$samples)
+i0 <- as.integer(params$initial)
+
+getpars <- function(distro_from_json) with(distro_from_json, dynGet(
+  "pars", ifnotfound = {
+    transformfun <- switch(type, lnorm = function(meanX, sdX) list(
+      meanlog=log((meanX^2)/(sqrt(sdX^2 + meanX^2))),
+      sdlog=sqrt(log(1 + (sdX/meanX)^2))
+    ))
+    do.call(transformfun, upars)
+  }
+))
+
+getr <- function(distro_from_json) with(distro_from_json, {
+  rfun <- get(sprintf("r%s", type))
+  funpars <- getpars(distro_from_json)
+  function(n) do.call(rfun, c(list(n=n), funpars))
+})
+
+rserial <- getr(params$serial)
+roffspring <- getr(params$offspring)
 
 #' create chains with bpmodels
 #' TODO
