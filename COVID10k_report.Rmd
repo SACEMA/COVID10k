@@ -1,0 +1,37 @@
+---
+title: "Projection of early spread of COVID-19 in South Africa"
+date: "Last updated: 2020-03-14"
+author: "Prepared by Carl A.B. Pearson (SACEMA, LSHTM), Sheetal Silal (UCT), and Juliet Pulliam (SACEMA)"
+output: 
+  pdf_document:
+    fig_caption: yes
+    highlight: tango
+    latex_engine: xelatex
+  html_document: default
+mainfont: Arial
+geometry: margin=.7in
+fontsize: 12pt
+bibliography: refs.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+This report investigates the expected timeframe for the first 1,000 and first 10,000 COVID-19 cases in South Africa, in the absence of containment and mitigation efforts. Using a branching process model to simulate the growth of the epidemic, we find that the cumulative case count is likely to reach 1,000 cases between 28 March and 2 April (95\% range: 25 March - 9 April), and that the cumulative case count is likely to reach 10,000 cases between 11 April and 16 April (95\% range: 7 April - 25 April). Rapid institution of containment and mitigation measures, including increased testing, contact tracing, isolation of cases, and quarantine of contacts are likely to slow, but not halt, the growth of the epidemic.
+
+## Assumptions and parameters
+
+The model is initialized assuming that the epidemic was seeded by 24 cases occurring between 5 and 13 March, and makes the following additional assumptions: 
+
+- No containment or mitigation efforts are put in place during the early phase of the epidemic
+- Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.38 [@dispersionParameter]).
+- The average time between the onset of a case and the onset of a subsequent case infected that by the case (serial interval) is 4.7 days (log-normally distributed with mean 4.7 and standard deviation 2.9) [@serialInterval].
+
+The model was run 10,000 times and the full distribution of results is presented in the figure. The results are summarized using the middle 50\% and 95\% of the distribution for the time to reach the specified number of cases.
+
+The model was built using the `bpmodels` package in the R statistical programming language [@bpmodels].
+
+**Contact:** Please address questions, feedback, and requests related to this document to Prof. Juliet Pulliam, Director of SACEMA, at <pulliam@sun.ac.za>.
+
+# References
