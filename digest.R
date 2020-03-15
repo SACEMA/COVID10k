@@ -8,9 +8,16 @@ suppressPackageStartupMessages({
 .sampfls <- head(.args, -1)
 .sample_offset <- readRDS(.sampfls[1])[, max(sample_id)+1]
 
+ul <- 1e4
+mar <- 1.1
+
 .res <- rbindlist(lapply(seq_along(.sampfls), function(ind) {
   readRDS(.sampfls[ind])[,
-    .SD[1:which.max(cumcase > 1e4)][, .(day, cumcase=c(cumcase[-.N], 1e4))],
+    if (.SD[,cumcase[.N] > ul*mar]) .SD[1:which.max(cumcase > ul*mar)][, {
+      pdy <- (ul*mar-cumcase[.N-1])/(cumcase[.N]-cumcase[.N-1])
+      dx <- (day[.N]-day[.N-1])*pdy
+      .(day=c(day[-.N], day[.N-1]+dx), cumcase=c(cumcase[-.N], ul*mar))
+    }],
     by=.(sample_id = sample_id + (ind-1)*.sample_offset)
   ]
 }))
@@ -20,7 +27,7 @@ lines.dt <- copy(.res)[, .(
 )]
 
 bars.dt <- rbind(
-  .res[, .(day=day[.N], value=1e4), by=sample_id],
+  .res[, .(day=day[which.max(cumcase > 1e4)], value=1e4), by=sample_id],
   .res[, .(day=day[which.max(cumcase > 1e3)], value=1e3), by=sample_id]
 )[, measure := "distribution" ]
 

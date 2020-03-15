@@ -33,14 +33,19 @@ p <- ggplot(lines.dt) + aes(day0+day, value, group=sample_id) +
   geom_histogram(
     aes(y=stat(count)/samp*100, group = value, fill = as.character(value)
   ), data = bars.dt, binwidth = 1, position = "identity", alpha = 0.5) +
+  geom_vline(
+    aes(xintercept=day0+med, color=as.character(value)),
+    data = copy(qs.dt)[, measure := "distribution"]
+  ) +
   scale_x_date("Date") +
+  #scale_y_continuous(breaks = c(0, 1e3, 3e3, 5e3, 7e3, 1e4)) +
   scale_color_manual(
     "reaching...",
     values = c(`1000`="goldenrod", `10000`="firebrick"),
     labels = function(b) sprintf("%s cases", b),
     aesthetics = c("color", "fill")
   ) +
-  coord_cartesian(xlim = c(day0, day0+60)) +
+  coord_cartesian(xlim = c(day0, day0+60), expand = FALSE) +
   theme_minimal() + theme(
     axis.title.y = element_blank(),
     strip.placement = "outside",
@@ -48,4 +53,4 @@ p <- ggplot(lines.dt) + aes(day0+day, value, group=sample_id) +
     legend.justification = c(1, 0.5)
   )
 
-save_plot(tail(.args, 1), p, base_width = 6, base_height = 3, nrow=2, ncol=1)
+save_plot(tail(.args, 1), p, base_width = 5, base_height = 2.5, nrow=2, ncol=1)
