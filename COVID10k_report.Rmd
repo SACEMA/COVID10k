@@ -18,7 +18,7 @@ bibliography: refs.bib
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-This report investigates the expected timeframe for the first 1,000 and first 10,000 COVID-19 cases in South Africa, in the absence of mitigation efforts. Using a branching process model to simulate the growth of the epidemic, we find that the cumulative case count is likely to reach 1,000 cases between 28 March and 2 April (95\% range: 25 March - 9 April), and that the cumulative case count is likely to reach 10,000 cases between 11 April and 16 April (95\% range: 7 April - 25 April). Containment measures, including testing, contact tracing, isolation of cases, and quarantine of contacts are likely to slow, but not halt, the growth of the epidemic [@containment].
+This report investigates the expected timeframe for the first 1,000 and first 10,000 COVID-19 cases in South Africa, in the absence of additional mitigation efforts. Using a branching process model to simulate the growth of the epidemic, we find that the cumulative case count is likely to reach 1,000 cases between 28 March and 2 April (95\% range: 25 March - 9 April), and that the cumulative case count is likely to reach 10,000 cases between 11 April and 16 April (95\% range: 7 April - 25 April). Containment measures, including testing, contact tracing, isolation of cases, and quarantine of contacts are likely to slow, but not halt, the growth of the epidemic [@containment].
 
 ![Distribution of times to 1,000 (yellow) and 10,000 (red) cases based on 10,000 model runs.](estimates.png){width=500px}
 
