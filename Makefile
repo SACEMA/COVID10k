@@ -1,18 +1,32 @@
 
-default: $(patsubst %,bpsamples-%.rds,$(shell seq -s " " -w 0 9))
+default: figs
+
+INDIR := .
+OUTDIR := ~/Dropbox/COVIDSA/outputs
+
+${INDIR} ${OUTDIR}:
+	mkdir -p $@
+
+dirs: ${INDIR} ${OUTDIR}
 
 R = Rscript $^ $@
 
 # create the branching process samples
-bpsamples-%.rds: bpsamples.R params.json
+${OUTDIR}/bpsamples-%.rds: bpsamples.R ${INDIR}/params.json | ${OUTDIR}
 	time ${R}
 
 # use to create digests
-digested.rds: digest.R $(wildcard bpsamples-*.rds)
+${OUTDIR}/digested.rds: digest.R $(wildcard ${OUTDIR}/bpsamples-*.rds) | ${OUTDIR}
 	${R}
 
-distros.rds quantiles.rds: digested.rds 
+${OUTDIR}/distros.rds ${OUTDIR}/quantiles.rds: ${OUTDIR}/digested.rds
 
 # use the branching samples to estimate...TBD
-estimates.png: estimate.R digested.rds distros.rds quantiles.rds
+${OUTDIR}/estimates.png: estimate.R $(addprefix ${OUTDIR}/,digested.rds distros.rds quantiles.rds)
 	${R}
+
+# use the branching samples to estimate...TBD
+${OUTDIR}/hospitalziation.rds: hospitalization.R ${OUTDIR}/digested.rds ${INDIR}/hosp.json
+	${R}
+
+figs: ${OUTDIR}/estimates.png
