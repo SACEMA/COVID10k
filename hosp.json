@@ -1,9 +1,4 @@
 {
-  "offspring":{
-    "type": "nbinom", "pars" : {
-      "mu": 2.0, "size": 0.38
-    }
-  },
   "onset2admit": {
     "type": "lnorm", "upars" : {
       "meanX": 5.9, "sdX": 5.1
@@ -15,23 +10,23 @@
     }
   },
   "icu2death": {
-    "type": "identity", "pars" : {
-      "value": 3.5
+    "type": "identity", "upars" : {
+      "value": 7.7
     }
   },
   "icu2recovery": {
     "type": "identity", "pars" : {
-      "value": 3.5
+      "value": 9.8
     }
   },
   "admit2discharge": {
     "type": "identity", "pars" : {
-      "value": 13.3
+      "value": 8
     }
   },
   "recovery2discharge": {
     "type": "identity", "pars" : {
-      "value": 13.3
+      "value": 2.7
     }
   }
 }
