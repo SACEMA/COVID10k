@@ -1,4 +1,10 @@
 {
+  "outcome" :{
+    "type": "sample", "pars" : {
+      "options": ["nonhosp", "ward", "icu", "death"],
+      "prob": [0.8, 0.14, 0.03, 0.03]
+    }
+  },
   "onset2admit": {
     "type": "lnorm", "upars" : {
       "meanX": 5.9, "sdX": 5.1
