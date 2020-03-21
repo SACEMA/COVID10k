@@ -19,17 +19,13 @@ bibliography: refs.bib
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 sim <- readr::read_csv('~/Dropbox (Personal)/COVIDSA/outputs/hospdigest.csv')
-qpfun <- function(dd, alph = 0.5) ggplot(dd) + aes(x = day)
+qpfun <- function(dd, alph = 0.5, yy = '') ggplot(dd) + aes(x = day) +
   geom_ribbon(aes(ymin = lo.lo, ymax = hi.hi), alpha = alph) +
   geom_ribbon(aes(ymin = lo, ymax = hi), alpha = alph) +
   geom_line(aes(y = md)) +
-  theme_minimal() + theme(
-    axis.title.y = element_blank(),
-    strip.placement = "outside",
-    legend.position = c(1, 0.5),
-    legend.justification = c(1, 0.5)
-  )
-
+  xlab('Date') +
+  ylab(yy) +
+  theme_minimal()
 ```
 
 This report investigates the expected trajectory of the number of cases and hospitalization / ICU burden for COVID in South Africa. Using a branching process model to simulate the growth of the epidemic, we project that the cumulative number of identified cases on 1 April has a 50% chance of being between 949 and 2,096 (95% range: 338-3,830). We estimate that the cumulative number of identified cases is likely to reach 1,000 between 28 March and 2 April (95% range: 25 March - 9 April).
@@ -43,7 +39,7 @@ cumc <- sim %>% filter(variable == 'cum.inc' & day > as.Date('2020-03-20'))
 
 cumc.t <- cumc %>% select(day, md, hi, hi.hi) %>% mutate(hi = round(hi), hi.hi = round(hi.hi))
 names(cumc.t) <- c('Date', 'Median', 'Upper 75%', 'Upper 97.5%')
-qpfun(cumc)
+qpfun(cumc, yy = 'Cumulative cases')
 
 knitr::kable(cumc.t)
 
