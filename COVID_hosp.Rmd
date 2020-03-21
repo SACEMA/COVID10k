@@ -61,7 +61,7 @@ knitr::kable(hosp.p)
 ### Critical care / ICU beds requried on a specific day
 
 ```{r, fig.width=4.5, fig.align='center', fig.height=3}
-icu <- sim %>% filter(variable == 'cur.ward' & day > as.Date('2020-03-20'))
+icu <- sim %>% filter(variable == 'cur.icu' & day > as.Date('2020-03-20'))
 
 icu.p <- icu %>% select(day, md, hi, hi.hi) %>% mutate(hi = round(hi), hi.hi = round(hi.hi))
 names(icu.p) <- c('Date', 'Median', 'Upper 75%', 'Upper 97.5%')
