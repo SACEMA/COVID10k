@@ -45,21 +45,16 @@ radmit2discharge <- getr(params$admit2discharge)
 routcome <- getr(params$outcome)
 
 # c(mild increment, ward increment, icu increment)
-events <- list(
-  non = c(1,0,0),
-  clear = c(-1,0,0),
-  admit = c(0,1,0),
-  discharge = c(0,-1,0),
-  icu = c(0,-1,1),
-  death = c(0,0,-1),
-  recover = c(0,1,-1)
+eventmap <- list(
+  non = list(1,0,0),
+  clear = list(-1,0,0),
+  admit = list(0,1,0),
+  discharge = list(0,-1,0),
+  idischarge = list(0,-1,0),
+  icu = list(0,-1,1),
+  death = list(0,0,-1),
+  recover = list(0,1,-1)
 )
-
-# convert vector of outcomes into a data.table of events
-# time, change in ward, change in icu
-outcomemap <- function(outcomes) {
-  
-}
 
 #' steps:
 #'  1. draw outcome
@@ -69,33 +64,47 @@ outcomemap <- function(outcomes) {
 #'  5. if death, draw admit2icu, icu2death
 cutoff <- incidence[,.(maxday=max(day)),by=sample_id]
 
-out.dt <- incidence[,{
-  outcomes <- routcome(incidence)
-  rel <- sort(outcomes[outcomes != "nonhosp"])
-  nhosp <- length(rel)
-  hosp.day <- day + floor(rhosptime(nhosp))
-  ndead <- sum(rel == "death")
-  leave.day <- hosp.day + floor(c(
-    rdeathtime(ndead), rstaytime(nhosp-ndead)
-  ))
-  .(
-    outcome = rel,
-    hosp.day = hosp.day,
-    leave.day = leave.day
-  )
-}, keyby=.(sample_id, day)][,
-  .N,
-  keyby=.(sample_id, outcome, hosp.day, leave.day)
-][cutoff, on=.(sample_id)][hosp.day < maxday]
+extendevents <- function(dt) dt[, c('mild','ward','icu') := eventmap[[event]], by=event]
 
-arrivals   <- out.dt[,.(N=sum(N)),by=.(sample_id, day=hosp.day)]
-departures <- out.dt[cutoff, on=.(sample_id)][leave.day < maxday,.(N=sum(N)),by=.(sample_id, day=leave.day)]
+nonevents <- extendevents(data.table(event = "non"))
+wardevents <- extendevents(data.table(event = c("admit", "discharge")))
+icuevents <- extendevents(data.table(event = c("admit", "icu", "recover", "idischarge")))
+deathevents <- extendevents(data.table(event = c("admit", "icu", "death")))
 
-events <- rbind(
-  arrivals[, .(sample_id, day, inc = N)],
-  departures[, .(sample_id, day, inc = -N)]
-)[, .(inc=sum(inc)), keyby=.(sample_id, day)]
+allcrunch <- rbindlist(lapply(incidence[,unique(sample_id)], function(sid) {
+  out.dt <- incidence[sample_id == sid, {
+    outcomes <- routcome(incidence)
+    res <- rbindlist(lapply(seq_along(outcomes), function(ind) switch(outcomes[ind],
+                                                                      nonhosp = copy(nonevents), ward = copy(wardevents), icu = copy(icuevents), death = copy(deathevents)
+    )[, id := ind ]))
+  }, keyby=.(sample_id, day)]
+  out.dt[event == "non", etime := 0 ]
+  out.dt[event == "admit", etime := r2admit(.N) ]
+  out.dt[event == "discharge", etime := radmit2discharge(.N) ]
+  out.dt[event == "icu", etime := radmit2icu(.N) ]
+  out.dt[event == "recover", etime := ricu2recovery(.N) ]
+  out.dt[event == "idischarge", etime := rrecover2discharge(.N) ]
+  out.dt[event == "death", etime := ricu2death(.N) ]
+  out.dt[, eday := floor(day + cumsum(etime)), by=.(sample_id, day, id)]
+  crunch <- out.dt[cutoff, on=.(sample_id)][eday < maxday,.(mild=sum(mild), ward=sum(ward), icu=sum(icu)), keyby=.(sample_id, eday)]
+#  cat(sid," complete\n")
+  return(crunch)
+}))
 
-events[, current := cumsum(inc), by=sample_id ]
+ret.dt <- allcrunch[
+  order(eday), .(
+    day = eday,
+    cum.mild=cumsum(mild), cur.ward=cumsum(ward), cur.icu=cumsum(icu)
+  ),
+  keyby = sample_id
+]
 
-saveRDS(events, tail(.args, 1))
+#' @examples 
+#' require(ggplot2)
+#' mlt <- melt(ret.dt, id.vars = c('sample_id','day'))
+#' ggplot(mlt) + aes(day, value, group = sample_id) +
+#'  facet_grid(variable ~ ., scale = 'free_y') +
+#'  geom_line(alpha = 0.05) +
+#'  theme_minimal()
+
+saveRDS(ret.dt, tail(.args, 1))

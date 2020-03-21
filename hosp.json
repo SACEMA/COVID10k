@@ -16,7 +16,7 @@
     }
   },
   "icu2death": {
-    "type": "identity", "upars" : {
+    "type": "identity", "pars" : {
       "value": 7.7
     }
   },
