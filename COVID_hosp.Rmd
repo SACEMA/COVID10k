@@ -1,0 +1,116 @@
+---
+title: "Early spread and hospital load for COVID-19 in South Africa"
+subtitle: "Preliminary projections"
+date: "Last updated: 2020-03-21"
+author: "Prepared by Carl A.B. Pearson (LSHTM, SACEMA) and Juliet Pulliam (SACEMA)"
+output: 
+  pdf_document:
+    fig_caption: yes
+    highlight: tango
+    latex_engine: xelatex
+  html_document: default
+mainfont: Arial
+geometry: margin=.7in
+fontsize: 12pt
+bibliography: refs.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+sim <- readr::read_csv('~/Dropbox (Personal)/COVIDSA/outputs/hospdigest.csv')
+```
+
+This report investigates the expected trajectory of the number of cases and hospitalization / ICU burden for COVID in South Africa. Using a branching process model to simulate the growth of the epidemic, we project that the cumulative number of identified cases on 1 April has a 50% chance of being between 949 and 2,096 (95% range: 338-3,830). We estimate that the cumulative number of identified cases is likely to reach 1,000 between 28 March and 2 April (95% range: 25 March - 9 April).
+
+Further, we estimate that the number of ICU beds required is likely to reach 50 between 5 and 10 April (95% range: 2-17 April) and reach 100 between 9 and 14 April (95% range: 5-21 April). The figures and tables below show the daily projected number of cumulative cases, non-ICU hospital beds required, and ICU beds required through 1 April.
+
+### Cumulative cases by day
+
+```{r, fig.width=4.5, fig.align='center', fig.height=3}
+cumc <- sim %>% filter(variable == 'cum.inc' & day > as.Date('2020-03-20'))
+
+cumc.p <- cumc %>% select(day, md, hi, hi.hi) %>% mutate(hi = round(hi), hi.hi = round(hi.hi))
+names(cumc.p) <- c('Date', 'Median', 'Upper 75%', 'Upper 97.5%')
+
+ggplot(cumc) + 
+  geom_line(aes(x = day, y = md)) +
+  theme_minimal() + theme(
+    axis.title.y = element_blank(),
+    strip.placement = "outside",
+    legend.position = c(1, 0.5),
+    legend.justification = c(1, 0.5)
+  )
+
+knitr::kable(cumc.p)
+
+```
+
+### Non-ICU hospital beds requried on a specific day
+
+```{r, fig.width=4.5, fig.align='center', fig.height=3}
+hosp <- sim %>% filter(variable == 'cur.ward' & day > as.Date('2020-03-20'))
+
+hosp.p <- hosp %>% select(day, md, hi, hi.hi) %>% mutate(hi = round(hi), hi.hi = round(hi.hi))
+names(hosp.p) <- c('Date', 'Median', 'Upper 75%', 'Upper 97.5%')
+
+ggplot(hosp, aes(x = day, y = md)) + 
+  geom_line() +
+  theme_minimal() + theme(
+    axis.title.y = element_blank(),
+    strip.placement = "outside",
+    legend.position = c(1, 0.5),
+    legend.justification = c(1, 0.5)
+  )
+
+knitr::kable(hosp.p)
+
+```
+
+### Critical care / ICU beds requried on a specific day
+
+```{r, fig.width=4.5, fig.align='center', fig.height=3}
+icu <- sim %>% filter(variable == 'cur.ward' & day > as.Date('2020-03-20'))
+
+icu.p <- icu %>% select(day, md, hi, hi.hi) %>% mutate(hi = round(hi), hi.hi = round(hi.hi))
+names(icu.p) <- c('Date', 'Median', 'Upper 75%', 'Upper 97.5%')
+
+ggplot(icu, aes(x = day, y = md)) +
+  geom_line() +
+  theme_minimal() + theme(
+    axis.title.y = element_blank(),
+    strip.placement = "outside",
+    legend.position = c(1, 0.5),
+    legend.justification = c(1, 0.5)
+  )
+
+knitr::kable(icu.p)
+
+```
+
+## Assumptions and parameters
+
+The model is initialized assuming that the epidemic was seeded by undetected cases occurring between 5 and 13 March, and makes the following additional assumptions: 
+
+- Any impact of containment and mitigation efforts put into place during the early phase of the epidemic will not be seen for several weeks following their implementation.
+- The fraction of cases detected remains constant and is at least 50\%. If detection levels increase substantially over this time frame, the numbers would be expected to increase.
+- Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.38 [@dispersionParameter]).
+- The average time between the onset of a case and the onset of a subsequent case infected by that case (serial interval) is 4.7 days (log-normally distributed with mean 4.7 and standard deviation 2.9) [@serialInterval].
+- Most (80\%) detected cases are mild and do not require hospitalization. Of cases that require hospitalization, 30\% require critical care (ICU) [@imperial9].
+- The time from onset to hospitalization is 5.9 days [@tindale].
+- The time from hospitalization to admission to the ICU is 3.5 days [@huang].
+- The time from hospitalization to discharge for patients not requiring critical care is 8 days [@imperial9].
+- The time from hospitalization to discharge for patients requiring critical care who eventually recover is 16 days [@imperial9].
+- The time from hospitalization to discharge for patients requiring critical care who eventually die is 11.2 days [@sanche].
+
+![Overview of the assumptions regarding hospitalization and ICU demand.](~/Dropbox (Personal)/COVIDSA/diagram.png){width=650px}
+
+The model was run 10,000 times. The results are summarized using the middle 50\% and 95\% of the distribution for the time to reach the specified number of cases.
+
+The model was built using the `bpmodels` package in the R statistical programming language [@bpmodels].
+
+_Note_: The intial version of this model, developed to forecast the time frame of the first 1,000 and 10,000 COVID cases in SA, was informed by discussion with Dr Sheetal Silal of UCT.
+
+**Contact:** Please address questions, feedback, and requests related to this document to Prof. Juliet Pulliam, Director of SACEMA, at <pulliam@sun.ac.za>.
+
+# References
