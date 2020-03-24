@@ -28,6 +28,11 @@ ${OUTDIR}/estimates.png: estimate.R \
 	$(addprefix ${OUTDIR}/,digested.rds distros.rds quantiles.rds)
 	${R}
 
+# use the branching samples to estimate dates for 1k, 10k cases
+${OUTDIR}/estimates-all.png: estimate-many.R ${OUTDIR}
+	${R}
+
+
 .PHONY: showday
 
 # use the branching samples to estimate cases for 1 April
@@ -54,9 +59,16 @@ ${OUTDIR}/%-bpsamples.rds: bpsamples.R ${OUTDIR}/%-params.json
 ${OUTDIR}/%-digested.rds: digest-one.R ${OUTDIR}/%-params.json ${OUTDIR}/%-bpsamples.rds | ${OUTDIR}
 	Rscript $^ $@
 
+PERCENT := %
+
+$(patsubst %,${OUTDIR}/${PERCENT}-%.rds,distros quantiles incidence): ${OUTDIR}/%-digested.rds
 
 ALLAFROPARS := $(wildcard ${OUTDIR}/*-params.json)
 
+allAFROpars: ${ALLAFROPARS}
+
 allAFRO: $(ALLAFROPARS:params.json=bpsamples.rds)
 
-figs: ${OUTDIR}/estimates.png
+allAFROdig: $(ALLAFROPARS:params.json=digested.rds)
+
+figs: ${OUTDIR}/estimates.png ${OUTDIR}/estimates-all.png

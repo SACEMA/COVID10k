@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 })
 
 
-.args <- c("params.json", "bpsamples-00.rds")
+.args <- c("~/Dropbox/COVIDSA/outputs/Chad-params.json", "~/Dropbox/COVIDSA/outputs/Chad-bpsamples.rds")
 .args <- commandArgs(trailingOnly = TRUE)
 
 #' load parameters from json file
@@ -26,7 +26,12 @@ chunks <- as.integer(params$chunks)
 n <- as.integer(params$samples)/chunks
 i0 <- as.integer(params$initial)
 if (length(i0) == 1) {
-  t0 <- rep(0, i0*n)
+  if (i0) {
+    t0 <- rep(0, i0*n)
+  } else {
+    t0 <- rep(0, n)
+    i0 <- 1
+  }
 } else {
   t0 <- rep(i0, times = n)
   i0 <- length(i0)

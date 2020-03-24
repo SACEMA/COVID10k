@@ -1,5 +1,5 @@
 suppressPackageStartupMessages({
-  require(NCoVUtils)
+  require(data2019nCoV)
   require(data.table)
   require(jsonlite)
 })
@@ -10,13 +10,14 @@ suppressPackageStartupMessages({
 
 tardir <- dirname(tail(.args, 1))
 
-SRwide <- get_who_cases()
+SRwide <- data.table(WHO_SR)
 
-# for (col in colnames(SRwide)) {
-#   print(sprintf("%s : %s", col, class(SRwide[[col]])))
-# }
+#' @examples troubleshooting
+#' for (col in colnames(SRwide)) {
+#'   if (class(SRwide[[col]])!="integer") print(sprintf("%s : %s", col, class(SRwide[[col]])))
+#' }
 
-SRwide$`RA-China` <- SRwide$`RA-Regional` <- SRwide$`RA-Global` <- NULL
+SRwide$`RA.China` <- SRwide$`RA.Regional` <- SRwide$`RA.Global` <- NULL
 
 allwhoSRs <- melt(SRwide, id.vars = c('SituationReport','Date'), variable.factor = F)
 
@@ -25,21 +26,21 @@ allwhoSRs <- melt(SRwide, id.vars = c('SituationReport','Date'), variable.factor
 #   grep("deaths", unique(allwhoSRs$variable), value = T)
 # )
 
-start_ind <- which(unique(allwhoSRs$variable) == "Region-EasternMediterranean")+1
-end_ind <- which(unique(allwhoSRs$variable) == "Region-African")-1
+start_ind <- which(unique(allwhoSRs$variable) == "Region.EasternMediterranean")+1
+end_ind <- which(unique(allwhoSRs$variable) == "Region.African")-1
 adds <- c("Sudan","Somalia","Djibouti","Tunisia","Morocco","Egypt")
 
 tarctys <- c(unique(allwhoSRs$variable)[start_ind:end_ind], adds)
 
 atleastone <- allwhoSRs[variable %in% tarctys, .(any=sum(value, na.rm = T)), by=variable][any > 0, variable]
 
-outbreak_constraint <- function(R, k) uniroot(function(p, R, k) { (1+(R/k)*p)^(-k)-1+p }, c(1e-6, 1-1e-6), R=R, k=k)$root
+# outbreak_constraint <- function(R, k) uniroot(function(p, R, k) { (1+(R/k)*p)^(-k)-1+p }, c(1e-6, 1-1e-6), R=R, k=k)$root
 
 slice <- allwhoSRs[(variable %in% atleastone) & (value < 25)][
   order(Date),
   .(detected=c(value[1], diff(value)), date=as.Date(Date)),
   keyby=.(variable)
-]
+][, .SD[which.max(detected > 0):.N], keyby=.(variable)]
 
 slice[detected < 0, detected := 0] # assume all reductions are erroneous
 

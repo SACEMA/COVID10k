@@ -18,7 +18,7 @@ bibliography: refs.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
-sim <- readr::read_csv('~/Dropbox (Personal)/COVIDSA/outputs/hospdigest.csv')
+sim <- readr::read_csv('~/Dropbox/COVIDSA/outputs/hospdigest.csv')
 qpfun <- function(dd, alph = 0.5, yy = '') ggplot(dd) + aes(x = day) +
   geom_ribbon(aes(ymin = lo.lo, ymax = hi.hi), alpha = alph) +
   geom_ribbon(aes(ymin = lo, ymax = hi), alpha = alph) +
