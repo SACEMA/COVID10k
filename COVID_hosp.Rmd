@@ -73,18 +73,18 @@ knitr::kable(icu.p)
 
 ## Assumptions and parameters
 
-The model is initialized assuming that the epidemic was seeded by undetected cases occurring between 5 and 13 March, and makes the following additional assumptions: 
+The model is initialized assuming that the epidemic was seeded by undetected cases occurring between 5 and 13 March, and makes the following additional assumptions (\ast indicates that uncertainty in the parameter is currently not included): 
 
 - Any impact of containment and mitigation efforts put into place during the early phase of the epidemic will not be seen for several weeks following their implementation.
 - The fraction of cases detected remains constant and is at least 50\%. If detection levels increase substantially over this time frame, the numbers would be expected to increase.
 - Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.38 [@dispersionParameter]).
 - The average time between the onset of a case and the onset of a subsequent case infected by that case (serial interval) is 4.7 days (log-normally distributed with mean 4.7 and standard deviation 2.9) [@serialInterval].
-- Most (80\%) detected cases are mild and do not require hospitalization. Of cases that require hospitalization, 30\% require critical care (ICU) [@imperial9].
-- The time from onset to hospitalization is 5.9 days [@tindale].
-- The time from hospitalization to admission to the ICU is 3.5 days [@huang].
-- The time from hospitalization to discharge for patients not requiring critical care is 8 days [@imperial9].
-- The time from hospitalization to discharge for patients requiring critical care who eventually recover is 16 days [@imperial9].
-- The time from hospitalization to discharge for patients requiring critical care who eventually die is 11.2 days [@sanche].
+- Most (80\%) detected cases are mild and do not require hospitalization (\ast). Of cases that require hospitalization, 30\% require critical care (\ast) (ICU) [@imperial9].
+- The time from onset to hospitalization is 5.9 days (log-normal distribution assumed with standard deviation 5.1) [@tindale].
+- The time from hospitalization to admission to the ICU is 3.5 days (\ast) [@huang].
+- The time from hospitalization to discharge for patients not requiring critical care is 8 days (\ast) [@imperial9].
+- The time from hospitalization to discharge for patients requiring critical care who eventually recover is 16 days (\ast) [@imperial9].
+- The time from hospitalization to discharge for patients requiring critical care who eventually die is 11.2 days (\ast) [@sanche].
 
 ![Overview of the assumptions regarding hospitalization and ICU demand.](~/Dropbox (Personal)/COVIDSA/diagram.png){width=650px}
 
