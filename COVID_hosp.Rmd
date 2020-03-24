@@ -28,7 +28,7 @@ qpfun <- function(dd, alph = 0.5, yy = '') ggplot(dd) + aes(x = day) +
   theme_minimal()
 ```
 
-This report investigates the expected trajectory of the number of cases and hospitalization / ICU burden for COVID in South Africa. Using a branching process model to simulate the growth of the epidemic, we project that the cumulative number of identified cases on 1 April has a 50% chance of being between 949 and 2,096 (95% range: 338-3,830). We estimate that the cumulative number of identified cases is likely to reach 1,000 between 28 March and 2 April (95% range: 25 March - 9 April).
+This report investigates the expected trajectory of the number of cases and hospitalization / ICU burden for COVID in South Africa. Using a branching process model to simulate the growth of the epidemic with importations beginning from the 5 March, we project that the cumulative number of identified cases on 1 April has a 50% chance of being between 949 and 2,096 (95% range: 338-3,830). We estimate that the cumulative number of identified cases is likely to reach 1,000 between 28 March and 2 April (95% range: 25 March - 9 April).
 
 Further, we estimate that the number of ICU beds required is likely to reach 50 between 5 and 10 April (95% range: 2-17 April) and reach 100 between 9 and 14 April (95% range: 5-21 April). The figures and tables below show the daily projected number of cumulative cases, non-ICU hospital beds required, and ICU beds required through 1 April.
 
