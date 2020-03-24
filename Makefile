@@ -24,7 +24,8 @@ $(patsubst %,${OUTDIR}/%.rds,distros quantiles incidence): ${OUTDIR}/digested.rd
 summaries: $(patsubst %,${OUTDIR}/%.rds,digested distros quantiles incidence hospitalization)
 
 # use the branching samples to estimate dates for 1k, 10k cases
-${OUTDIR}/estimates.png: estimate.R $(addprefix ${OUTDIR}/,digested.rds distros.rds quantiles.rds)
+${OUTDIR}/estimates.png: estimate.R \
+	$(addprefix ${OUTDIR}/,digested.rds distros.rds quantiles.rds)
 	${R}
 
 .PHONY: showday
@@ -40,5 +41,22 @@ ${OUTDIR}/hospitalization.rds: hospitalization.R ${INDIR}/hosp.json ${OUTDIR}/in
 
 ${OUTDIR}/hospdigest.csv: hospdigest.R ${OUTDIR}/hospitalization.rds ${OUTDIR}/incidence.rds
 	${R}
+
+.PRECIOUS: ${OUTDIR}/%-params.json
+
+${OUTDIR}/%-params.json: WHOAFRO.R template-params.json
+	${R}
+
+${OUTDIR}/%-bpsamples.rds: bpsamples.R ${OUTDIR}/%-params.json
+	${R}
+
+# use to create digests
+${OUTDIR}/%-digested.rds: digest-one.R ${OUTDIR}/%-params.json ${OUTDIR}/%-bpsamples.rds | ${OUTDIR}
+	Rscript $^ $@
+
+
+ALLAFROPARS := $(wildcard ${OUTDIR}/*-params.json)
+
+allAFRO: $(ALLAFROPARS:params.json=bpsamples.rds)
 
 figs: ${OUTDIR}/estimates.png

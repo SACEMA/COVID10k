@@ -22,7 +22,8 @@ suppressPackageStartupMessages({
 #' TODO
 params <- read_json(.args[1], simplifyVector = T)
 
-n <- as.integer(params$samples)/as.integer(params$chunks)
+chunks <- as.integer(params$chunks)
+n <- as.integer(params$samples)/chunks
 i0 <- as.integer(params$initial)
 if (length(i0) == 1) {
   t0 <- rep(0, i0*n)
@@ -50,7 +51,7 @@ getr <- function(distro_from_json) with(distro_from_json, {
 rserial <- getr(params$serial)
 roffspring <- getr(params$offspring)
 
-chunk <- as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1)))
+chunk <- if (chunks > 1) as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1))) else 1
 
 set.seed(chunk*13 + 42)
 #' create chains with bpmodels
