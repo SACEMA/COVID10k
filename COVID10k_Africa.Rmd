@@ -5,6 +5,8 @@ author:
   - Carl A.B. Pearson (LSHTM, SACEMA)
   - Cari Van Schalkwyk (SACEMA)
   - Kathleen O'Reilly (LSHTM)
+  - "SACEMA's Modelling and Analysis Response Team (SMART)"
+  - "CMMID COVID-19 working group (LSHTM)"
   - Juliet Pulliam (SACEMA)
 output: 
   pdf_document:
@@ -22,22 +24,24 @@ bibliography: refs.bib
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-This report investigates the expected timeframe for the first 1,000 and first 10,000 COVID-19 cases for countries in Africa that have at least one case reported in the WHO COVID-19 Situation Reports.
+This report investigates the expected timeframe for the first 1,000 and first 10,000 COVID-19 cases for countries in Africa that have at least one case reported in the WHO COVID-19 Situation Reports (SITREPs).
 
-Using a branching process model to simulate the growth of the observed epidemic, we estimate the cumulative reported cases. The simulations assume that the epidemic proceeds at the same rates as have been seen elsewhere in the world. They also assume the current rates of detection and other intervention measures remain constant.
+Using a branching process model to simulate the growth of the observed epidemic, we estimate the cumulative reported cases. The simulations assume that the epidemic proceeds at the same rates as have been seen elsewhere in the world. They also assume the current rates of detection and other intervention measures remain constant on a country-by-country basis.
 
 Additional containment measures, including testing, contact tracing, isolation of cases, and quarantine of contacts are likely to slow, but not halt, the growth of the epidemic [@containment]. Changes to increase testing are likely to appear to accelerate these timelines, as ascertainment rates increase.
 
+These forecasts are only as accurate as the data available in the SITREPs. Lags and missingness in that data tend to delay onset of the 1000 and 10 000 case dates. 
+
 ## Assumptions and parameters
 
-The model is initialized assuming that the epidemic was seeded by the cases represented in the situation report. We used the first 25 (or fewer) cases as representative the timing of early seeding; while transmission from those cases may have been contained, we assume there are likely other undetected ones which will eventually lead to detected cases. We make the following additional assumptions:
+The model is initialized assuming that the epidemic was seeded by the cases represented in the SITREPs. We used the first 25 (or fewer) cases as representative the timing of early seeding; while transmission from those cases may have been contained, we assume there are likely other undetected ones which will eventually lead to detected cases. We make the following additional assumptions:
 
 - The fraction of cases detected remains constant.
 - Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.38 [@dispersionParameter]).
 - The average time between the onset of a case and the onset of a subsequent case infected by that case (serial interval) is 4.7 days (log-normally distributed with mean 4.7 and standard deviation 2.9) [@serialInterval].
 - Individual seeds are allowed to go extinct.
 
-The model was run 1,000 times. The results are summarized using the middle 50\% and 95\% of the distribution for the time to reach the specified number of cases.
+The model was run 1 000 times. The results are summarized using the middle 50\% and 95\% of the distribution for the time to reach the specified number of cases. The estimates specific to South Africa are based a higher resolution forecast, and slightly different set of publicly available data.
 
 The model was built using the `bpmodels` package in the R statistical programming language [@bpmodels].
 
