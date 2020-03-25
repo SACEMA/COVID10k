@@ -34,6 +34,7 @@ p <- ggplot(bars) + aes(y=country) +
     aes(x=date+lo.lo, xend=date+hi.hi, yend=country, color=as.character(value), group=NULL),
     size = 2, alpha = 0.5
   ) +
+  geom_vline(aes(xintercept=as.Date("2020-03-25")), color = "red") +
   scale_x_date("Date") +
   #scale_y_continuous(breaks = c(0, 1e3, 3e3, 5e3, 7e3, 1e4)) +
   scale_color_manual(
