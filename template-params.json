@@ -1,7 +1,7 @@
 {
   "offspring":{
     "type": "nbinom", "pars" : {
-      "mu": 2.0, "size": 0.38
+      "mu": 2.0, "size": 0.58
     }
   },
   "serial":{

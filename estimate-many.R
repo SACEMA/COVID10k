@@ -29,7 +29,9 @@ day0s <- rbindlist(lapply(list.files(.args[1], "-params\\.json$"), function(fn) 
 
 bars <- qs.dt[day0s, on=.(country)]
 
-p <- ggplot(bars) + aes(y=country) +
+bars.p <- bars[, country := factor(country, levels = sort(unique(country), decreasing = TRUE))]
+
+p <- ggplot(bars.p) + aes(y=country) +
   geom_segment(
     aes(x=date+lo, xend=date+hi, yend=country, color=as.character(value), group=NULL),
     size = 5, alpha = 0.5
