@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 })
 
 
-.args <- c("~/Dropbox/COVIDSA/outputs/Chad-params.json", "~/Dropbox/COVIDSA/outputs/Chad-bpsamples.rds")
+.args <- c("~/Dropbox/COVIDSA/outputs/DemocraticRepublicoftheCongo-paramsR3.json", "~/Dropbox/COVIDSA/outputs/DemocraticRepublicoftheCongo-bpsamplesR3.rds")
 .args <- commandArgs(trailingOnly = TRUE)
 
 #' load parameters from json file
@@ -27,13 +27,13 @@ n <- as.integer(params$samples)/chunks
 i0 <- as.integer(params$initial)
 if (length(i0) == 1) {
   if (i0) {
-    t0 <- rep(0, i0*n)
+    t0s <- rep(0, i0)
   } else {
-    t0 <- rep(0, n)
+    t0s <- 0
     i0 <- 1
   }
 } else {
-  t0 <- rep(i0, times = n)
+  t0s <- i0
   i0 <- length(i0)
 }
 
@@ -60,21 +60,20 @@ chunk <- if (chunks > 1) as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1
 
 set.seed(chunk*13 + 42)
 #' create chains with bpmodels
-chains <- data.table(with(params, with(offspring, with(pars, chain_sim(n*i0,
-  offspring = type,
-  infinite = target, tree = TRUE, t0 = t0,
-  serial = rserial, mu = mu, size = size
-)))), key = c("n", "time"))
-
-chains[,
-  nmod := (n-1) %/% i0
-][,
-  day := floor(time)
-]
-
-res <- chains[, .N, keyby = .(sample_id = nmod, day)]
-res[, cumcase := cumsum(N), by = sample_id]
+chains <- rbindlist(lapply(1:n, function(sample_id) with(
+  params, with(offspring, with(pars, 
+    data.table(chain_sim(
+      length(t0s), offspring = type,
+      infinite = target, tree = TRUE, t0 = t0s,
+      serial = rserial, mu = mu, size = size
+    ))[,
+      day := floor(time)
+    ][,
+      .N, keyby = day
+    ][,
+      sample_id := sample_id
+    ][, cumcase := cumsum(N) ][ cumcase < target*1.5 ])))))
 
 #' save digested results to file
 
-saveRDS(res, tail(.args, 1))
+saveRDS(chains, tail(.args, 1))

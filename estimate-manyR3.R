@@ -5,20 +5,18 @@ suppressPackageStartupMessages({
   require(jsonlite)
 })
 
-.args <- c("~/Dropbox/COVIDSA/outputs", "~/Dropbox/COVIDSA/outputs/quantiles.rds")
+.args <- c("~/Dropbox/COVIDSA/outputs")
 .args <- commandArgs(trailingOnly = TRUE)
 
-fns <- grep("SouthAfrica", list.files(.args[1], "-quantiles\\.rds$"), value = TRUE, invert = TRUE)
+fns <- list.files(.args[1], "R3-quantiles\\.rds$")
 
-SAqs.dt <- readRDS(.args[2])[, country := "SouthAfrica" ]
-
-qs.dt <- rbind(rbindlist(lapply(
+qs.dt <- rbindlist(lapply(
   fns,
   function(fn) {
-    cty <- gsub("^(.+)-.+$", "\\1", fn)
+    cty <- gsub("^(.+)R3-.+$", "\\1", fn)
     readRDS(sprintf("%s/%s",.args[1],fn))[, country := cty ]
   }
-)), SAqs.dt)[order(country)]
+))[order(country)]
 
 day0s <- rbindlist(lapply(list.files(.args[1], "-params\\.json$"), function(fn) {
   cty <- gsub("^(.+)-.+$", "\\1", fn)

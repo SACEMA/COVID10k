@@ -55,6 +55,8 @@ ${OUTDIR}/%-params.json: WHOAFRO.R template-params.json
 ${OUTDIR}/%-bpsamples.rds: bpsamples.R ${OUTDIR}/%-params.json
 	${R}
 
+
+
 # use to create digests
 ${OUTDIR}/%-digested.rds: digest-one.R ${OUTDIR}/%-params.json ${OUTDIR}/%-bpsamples.rds | ${OUTDIR}
 	Rscript $^ $@
@@ -70,5 +72,27 @@ allAFROpars: ${ALLAFROPARS}
 allAFRO: $(ALLAFROPARS:params.json=bpsamples.rds)
 
 allAFROdig: $(ALLAFROPARS:params.json=digested.rds)
+
+ALLAFROPARSR3 := $(wildcard ${OUTDIR}/*-paramsR3.json)
+
+allAFROparsR3: ${ALLAFROPARSR3}
+
+allAFROR3: $(ALLAFROPARSR3:paramsR3.json=bpsamplesR3.rds)
+
+allAFROdigR3: $(ALLAFROPARSR3:-paramsR3.json=R3-digested.rds)
+
+${OUTDIR}/%-paramsR3.json: WHOAFRO.R template-paramsR3.json
+	${R}
+
+${OUTDIR}/%-bpsamplesR3.rds: bpsamples.R ${OUTDIR}/%-paramsR3.json
+	${R}
+
+${OUTDIR}/%R3-digested.rds: digest-one.R ${OUTDIR}/%-paramsR3.json ${OUTDIR}/%-bpsamplesR3.rds | ${OUTDIR}
+	Rscript $^ $@
+
+# use the branching samples to estimate dates for 1k, 10k cases
+estimates-allR3.png: estimate-manyR3.R ${OUTDIR}
+	${R}
+
 
 figs: estimates.png estimates-all.png
