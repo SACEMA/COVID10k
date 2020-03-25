@@ -29,7 +29,7 @@ estimates.png: estimate.R \
 	${R}
 
 # use the branching samples to estimate dates for 1k, 10k cases
-estimates-all.png: estimate-many.R ${OUTDIR}
+estimates-all.png: estimate-many.R ${OUTDIR} ${OUTDIR}/quantiles.rds
 	${R}
 
 
