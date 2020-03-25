@@ -24,12 +24,12 @@ $(patsubst %,${OUTDIR}/%.rds,distros quantiles incidence): ${OUTDIR}/digested.rd
 summaries: $(patsubst %,${OUTDIR}/%.rds,digested distros quantiles incidence hospitalization)
 
 # use the branching samples to estimate dates for 1k, 10k cases
-${OUTDIR}/estimates.png: estimate.R \
+estimates.png: estimate.R \
 	$(addprefix ${OUTDIR}/,digested.rds distros.rds quantiles.rds)
 	${R}
 
 # use the branching samples to estimate dates for 1k, 10k cases
-${OUTDIR}/estimates-all.png: estimate-many.R ${OUTDIR}
+estimates-all.png: estimate-many.R ${OUTDIR}
 	${R}
 
 
@@ -71,4 +71,4 @@ allAFRO: $(ALLAFROPARS:params.json=bpsamples.rds)
 
 allAFROdig: $(ALLAFROPARS:params.json=digested.rds)
 
-figs: ${OUTDIR}/estimates.png ${OUTDIR}/estimates-all.png
+figs: estimates.png estimates-all.png
