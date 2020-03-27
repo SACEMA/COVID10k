@@ -40,7 +40,7 @@ The model is initialized assuming that the epidemic was seeded by the cases repr
 
 Epidemic parameters:
 
-- Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.38 [@dispersionParameter]).
+- Each case produces an average of 2 additional cases [@reproductionNumber] (negative binomially distributed offspring distribution with mean 2 and dispersion parameter 0.58 [@dispersionParameter]).
 - The average time between the onset of a case and the onset of a subsequent case infected by that case (serial interval) is 4.7 days (log-normally distributed with mean 4.7 and standard deviation 2.9) [@serialInterval].
 
 The model was run 1000 times. The results are summarized using the middle 50\% and 95\% of the distribution for the time to reach the specified number of cases. The estimates specific to South Africa are based on a higher resolution forecast (10x samples) previously used for a national report.
