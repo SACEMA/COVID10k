@@ -32,6 +32,9 @@ params: ${PARREF}
 R2.txt: slurm.R ${PARREF} | ${PARDIR}
 	Rscript $< ${PARDIR} ${BPDIRBASE}R2 $@
 
+R3.txt: slurm.R ${PARREF} | ${PARDIR}
+	Rscript $< ${PARDIR} ${BPDIRBASE}R3 $@
+
 ${BPDIRBASE}R2/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R2.json | ${BPDIRBASE}R2
 	${R}
 
@@ -40,9 +43,6 @@ ${BPDIRBASE}R2/merge.rds: merge.R $(wildcard ${OUTDIR}/*-params.json) $(wildcard
 
 ${BPDIRBASE}R3/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R3.json | ${BPDIRBASE}R3
 	${R}
-
-R3.txt: slurm.R ${PARREF} | ${PARDIR}
-	Rscript $< ${PARDIR} R3 $@
 
 testbpsample: ${BPDIRBASE}R2/SouthAfrica-bpsamples.rds
 
