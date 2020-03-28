@@ -1,0 +1,14 @@
+{
+  "offspring":{
+    "type": "nbinom", "pars" : {
+      "mu": 2.0, "size": 0.38
+    }
+  },
+  "serial":{
+    "type": "lnorm", "upars" : {
+      "meanX": 4.7, "sdX": 2.9
+    }
+  },
+  "samples": 1e4,
+  "target": 1e4
+}

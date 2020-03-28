@@ -1,3 +1,6 @@
+# local make variables
+local.make
+
 # History files
 .Rhistory
 .Rapp.history

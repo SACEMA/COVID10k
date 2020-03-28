@@ -1,29 +1,23 @@
 #' branching process samples
 suppressPackageStartupMessages({
-  if(!require(bpmodels)) {
-    devtools::install_github("sbfnk/bpmodels")
-    if (!require(bpmodels)) stop("failed to include / install bpmodels")
-  }
-  if (!require(jsonlite)) {
-    install.packages("jsonlite")
-    if (!require(jsonlite)) stop("failed to include / install jsonlite")
-  }
-  if (!require(data.table)) {
-    install.packages("data.table")
-    if (!require(data.table)) stop("failed to include / install data.table")
-  }
+  require(data.table)
+  require(jsonlite)
+  require(bpmodels)
 })
 
 
-.args <- c("~/Dropbox/COVIDSA/outputs/DemocraticRepublicoftheCongo-paramsR3.json", "~/Dropbox/COVIDSA/outputs/DemocraticRepublicoftheCongo-bpsamplesR3.rds")
-.args <- commandArgs(trailingOnly = TRUE)
+.args <- if (interactive()) c(
+  "~/Dropbox/COVIDSA/outputs/params/SouthAfrica-par.json", "inputs/R2.json", "~/Dropbox/COVIDSA/outputs/bpsR2/SouthAfrica-bpsamples.rds"
+) else commandArgs(trailingOnly = TRUE)
 
 #' load parameters from json file
 #' TODO
-params <- read_json(.args[1], simplifyVector = T)
+params <- c(
+  read_json(.args[1], simplifyVector = T),
+  read_json(.args[2], simplifyVector = T)
+)
 
-chunks <- as.integer(params$chunks)
-n <- as.integer(params$samples)/chunks
+n <- as.integer(params$samples)
 i0 <- as.integer(params$initial)
 if (length(i0) == 1) {
   if (i0) {
@@ -56,9 +50,7 @@ getr <- function(distro_from_json) with(distro_from_json, {
 rserial <- getr(params$serial)
 roffspring <- getr(params$offspring)
 
-chunk <- if (chunks > 1) as.integer(gsub(".*-(\\d+)\\.rds", "\\1", tail(.args, 1))) else 1
-
-set.seed(chunk*13 + 42)
+set.seed(13 + 42)
 #' create chains with bpmodels
 chains <- rbindlist(lapply(1:n, function(sample_id) with(
   params, with(offspring, with(pars, 

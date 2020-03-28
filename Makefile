@@ -1,11 +1,58 @@
 
-default: figs
+# use a local make file to override the 3 variables that follow
+-include local.make
 
-INDIR := .
-OUTDIR := ~/Dropbox/COVIDSA/outputs
+INDIR ?= inputs
+OUTDIR ?= outputs
+REPDIR ?= reports
 
-${INDIR} ${OUTDIR}:
+PARDIR := ${OUTDIR}/params
+BPDIRBASE := ${OUTDIR}/bps
+
+${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} ${BPDIRBASE}R2 ${BPDIRBASE}R3:
 	mkdir -p $@
+
+R = Rscript $^ $@
+
+.PHONY: latest-WHO.rds
+
+${INDIR}/latest-WHO.rds: updateWHO.R | ${INDIR}
+	${R}
+
+# this date sets the limit on reporting used to seed forecasts
+DATELIM ?= 2020-03-25
+
+${PARDIR}/%-par.json: processWHO.R | ${INDIR}/latest-WHO.rds ${PARDIR}
+	Rscript $^ ${DATELIM} $| $(subst $*,,$(notdir $@))
+
+PARREF := ${PARDIR}/SouthAfrica-par.json
+
+params: ${PARREF}
+
+${BPDIRBASE}R2/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R2.json | ${BPDIRBASE}R2
+	${R}
+
+${BPDIRBASE}R2/merge.rds: merge.R $(wildcard ${OUTDIR}/*-params.json) $(wildcard ${OUTDIR}/*-digested.rds)
+	Rscript $< ${OUTDIR} -params.json [^3]-digested.rds $@
+
+${BPDIRBASE}R3/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R3.json | ${BPDIRBASE}R3
+	${R}
+
+R2.txt: slurm.R ${PARREF} | ${PARDIR}
+	Rscript $< ${PARDIR} ${BPDIRBASE}R2 $@
+
+R3.txt: slurm.R ${PARREF} | ${PARDIR}
+	Rscript $< ${PARDIR} R3 $@
+
+testbpsample: ${BPDIRBASE}R2/SouthAfrica-bpsamples.rds
+
+${OUTDIR}/R2-merge.rds: 
+
+
+
+
+
+default: ${OUTDIR}/R3-merge.rds ${OUTDIR}/R2-merge.rds figs
 
 dirs: ${INDIR} ${OUTDIR}
 
@@ -89,6 +136,18 @@ ${OUTDIR}/%-bpsamplesR3.rds: bpsamples.R ${OUTDIR}/%-paramsR3.json
 
 ${OUTDIR}/%R3-digested.rds: digest-one.R ${OUTDIR}/%-paramsR3.json ${OUTDIR}/%-bpsamplesR3.rds | ${OUTDIR}
 	Rscript $^ $@
+
+${OUTDIR}/R3-merge.rds: merge.R $(wildcard ${OUTDIR}/*-paramsR3.json) $(wildcard ${OUTDIR}/*R3-digested.rds)
+	Rscript $< ${OUTDIR} -paramsR3.json R3-digested.rds $@
+
+
+
+DD ?= 2020-05-01
+
+
+
+deathsDate: deathsOn.R
+	Rscript $^ ${OUTPUT} ${DD}
 
 # use the branching samples to estimate dates for 1k, 10k cases
 estimates-allR3.png: estimate-manyR3.R ${OUTDIR}
