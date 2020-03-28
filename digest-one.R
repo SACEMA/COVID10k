@@ -3,7 +3,7 @@ suppressPackageStartupMessages({
   require(jsonlite)
 })
 
-.args <- c("~/Dropbox/COVIDSA/outputs/Algeria-params.json", "~/Dropbox/COVIDSA/outputs/Algeria-bpsamples.rds")
+.args <- c("~/Dropbox/COVIDSA/outputs/Uganda-params.json", "~/Dropbox/COVIDSA/outputs/Uganda-bpsamples.rds")
 .args <- commandArgs(trailingOnly = TRUE)
 
 simpars <- read_json(.args[1])
@@ -26,7 +26,7 @@ earlyl <- as.integer(ul*0.1)
         cumcase = c(cumcase[-.N], ul*mar),
         incidence = c(N[-.N], ul*mar-cumcase[.N-1])
       )
-    }],
+    }] else .SD[, .(day, as.numeric(cumcase), incidence=as.numeric(N))],
     by=sample_id
   ]
 

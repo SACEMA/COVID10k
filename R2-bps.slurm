@@ -3,7 +3,7 @@
 #$ -V
 #$ -S /bin/bash
 #$ -wd ~/COVID10k
-#$ -N covid10k-bpsamples
+#$ -N covid10k-bpsamples-R2
 #$ -l h_rt=01:00:00
 #$ -l mem_free=4G
 #$ -q ???

@@ -17,4 +17,14 @@ This project uses gnu `make` to define dependencies between inputs. The basic fl
 
 ## Generate Analysis Parameters
 
-There are shared parameter files (`shared-*.json`), and country specific (`*-pars.json`) parameter files.
+There are shared parameter files (`inputs/SCENARIO.json`), and country specific (`*-par.json`) parameter files. The country specific ones are made from the latest data:
+
+`make params`
+
+## Generate HPC slurm reference
+
+Generate the list of branching process jobs to do:
+
+`make R2.txt R3.txt`
+
+then use `R2-bps.slurm R3-bps.slurm` to run the jobs.
