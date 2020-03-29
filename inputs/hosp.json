@@ -1,0 +1,28 @@
+{
+  "outcome" :{
+    "type": "sample", "pars" : {
+      "options": ["nonhosp", "ward", "icu"],
+      "prob": [0.81, 0.1406, 0.0494]
+    }
+  },
+  "onset2admit": {
+    "type": "lnorm", "upars" : {
+      "meanX": 5, "sdX": 2.65
+    }
+  },
+  "admit2icu": {
+    "type": "identity", "pars" : {
+      "value": 3.5
+    }
+  },
+  "icu2exit": {
+    "type": "identity", "pars" : {
+      "value": 8
+    }
+  },
+  "admit2discharge": {
+    "type": "identity", "pars" : {
+      "value": 11.0
+    }
+  }
+}

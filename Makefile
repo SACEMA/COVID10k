@@ -11,7 +11,8 @@ BPDIRBASE := ${OUTDIR}/bps
 HOSPDIRBASE := ${OUTDIR}/hosp
 
 ${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} \
-${BPDIRBASE}R2 ${BPDIRBASE}R3:
+${BPDIRBASE}R2 ${BPDIRBASE}R3 \
+${HOSPDIRBASE}R2 ${HOSPDIRBASE}R3:
 	mkdir -p $@
 
 R = Rscript $^ $@
@@ -57,7 +58,7 @@ testbpmerge: ${BPDIRBASE}R2/bpmerge.rds
 ${HOSPDIRBASE}%-hosp.rds: hospestimate.R ${BPDIRBASE}%-bpsamples.rds ${INDIR}/hosp.json | ${HOSPDIRBASE}R2 ${HOSPDIRBASE}R3
 	${R}
 
-
+testhosp: ${HOSPDIRBASE}R2/SouthAfrica-hosp.rds
 
 
 
