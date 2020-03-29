@@ -8,8 +8,10 @@ REPDIR ?= reports
 
 PARDIR := ${OUTDIR}/params
 BPDIRBASE := ${OUTDIR}/bps
+HOSPDIRBASE := ${OUTDIR}/hosp
 
-${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} ${BPDIRBASE}R2 ${BPDIRBASE}R3:
+${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} \
+${BPDIRBASE}R2 ${BPDIRBASE}R3:
 	mkdir -p $@
 
 R = Rscript $^ $@
@@ -38,15 +40,22 @@ R3.txt: slurm.R ${PARREF} | ${PARDIR}
 ${BPDIRBASE}R2/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R2.json | ${BPDIRBASE}R2
 	${R}
 
-${BPDIRBASE}R2/merge.rds: merge.R $(wildcard ${OUTDIR}/*-params.json) $(wildcard ${OUTDIR}/*-digested.rds)
-	Rscript $< ${OUTDIR} -params.json [^3]-digested.rds $@
-
 ${BPDIRBASE}R3/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R3.json | ${BPDIRBASE}R3
 	${R}
 
-testbpsample: ${BPDIRBASE}R2/SouthAfrica-bpsamples.rds
+${BPDIRBASE}%/bpmerge.rds: bpmerge.R $(wildcard ${BPDIRBASE}%/*-bpsamples.rds)
+	Rscript $< ${PARDIR} $@
 
-${OUTDIR}/R2-merge.rds: 
+${OUTDIR}/%digest.rds: digest.R ${INDIR}/%.json ${BPDIRBASE}%/bpmerge.rds
+	Rscript $< ${PARDIR} $@
+
+
+testbpsample: $(patsubst %,${BPDIRBASE}R2/%-bpsamples.rds,SouthAfrica Zimbabwe Tunisia)
+
+testbpmerge: ${BPDIRBASE}R2/bpmerge.rds
+
+${HOSPDIRBASE}%-hosp.rds: hospestimate.R ${BPDIRBASE}%-bpsamples.rds ${INDIR}/hosp.json | ${HOSPDIRBASE}R2 ${HOSPDIRBASE}R3
+	${R}
 
 
 

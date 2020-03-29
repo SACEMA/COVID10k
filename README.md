@@ -28,3 +28,6 @@ Generate the list of branching process jobs to do:
 `make R2.txt R3.txt`
 
 then use `R2-bps.slurm R3-bps.slurm` to run the jobs.
+
+## Consolidate Results, Summarize & Visualize
+
