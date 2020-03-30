@@ -1,8 +1,11 @@
 suppressPackageStartupMessages({
-  require(data2019nCoV)
   require(data.table)
   require(jsonlite)
+  require(remotes)
 })
+
+remotes::install_github("eebrown/data2019nCoV", upgrade = "always")
+require(data2019nCoV)
 
 .args <- if (interactive()) c(
   "~/Dropbox/COVIDSA/outputs/va"
