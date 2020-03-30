@@ -60,6 +60,17 @@ ${HOSPDIRBASE}%-hosp.rds: hospestimate.R ${BPDIRBASE}%-bpsamples.rds ${INDIR}/ho
 
 testhosp: ${HOSPDIRBASE}R2/SouthAfrica-hosp.rds
 
+hosp%.txt: %.txt
+	sed 's/bps$*/hosp$*/g' $^ > $@
+	sed -i '' 's/bpsamples/hosp/g' $@
+
+
+
+
+
+
+
+
 
 
 default: ${OUTDIR}/R3-merge.rds ${OUTDIR}/R2-merge.rds figs
