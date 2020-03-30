@@ -23,6 +23,8 @@ lines.dt <- copy(.res)[, .(
   measure = "cumcases", value = cumcase
 ), keyby=key(.res) ]
 
+sublines <- lines.dt[, if (max(value) >= ul) .SD[1:which.max(value >= ul)], by=.(country, sample_id)]
+
 bars.dt <- .res[, {
   d <- if (cumcase[.N] > ul) {
     c(date[which.max(cumcase > earlyl)], date[which.max(cumcase > ul)])
@@ -34,7 +36,17 @@ bars.dt <- .res[, {
   .(day=d, value = c(earlyl, ul))
 }, keyby = setdiff(key(.res), "date")]
 
+subbars <- sublines[, {
+  .(day=c(date[which.max(value > earlyl)], date[.N]), value = c(earlyl, ul))
+}, keyby = setdiff(key(.res), "date")]
+
 qs.dt <- bars.dt[,{
+  qs <- quantile(as.numeric(day), probs = c(0.025, 0.25, 0.5, 0.75, 0.975))
+  names(qs) <- c("lo.lo","lo","med","hi","hi.hi")
+  c(as.list(qs+as.Date("1970-01-01")), measure = "cumcases")
+}, keyby=.(country, value) ]
+
+subqs.dt <- subbars[,{
   qs <- quantile(as.numeric(day), probs = c(0.025, 0.25, 0.5, 0.75, 0.975))
   names(qs) <- c("lo.lo","lo","med","hi","hi.hi")
   c(as.list(qs+as.Date("1970-01-01")), measure = "cumcases")

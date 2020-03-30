@@ -7,11 +7,12 @@ OUTDIR ?= outputs
 REPDIR ?= reports
 
 PARDIR := ${OUTDIR}/params
+VALDIR := ${OUTDIR}/valpars
 BPDIRBASE := ${OUTDIR}/bps
 HOSPDIRBASE := ${OUTDIR}/hosp
 
-${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} \
-${BPDIRBASE}R2 ${BPDIRBASE}R3 \
+${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} ${VALDIR} \
+${BPDIRBASE}R2 ${BPDIRBASE}R3 ${BPDIRBASE}validate \
 ${HOSPDIRBASE}R2 ${HOSPDIRBASE}R3:
 	mkdir -p $@
 
@@ -25,8 +26,12 @@ ${INDIR}/latest-WHO.rds: updateWHO.R | ${INDIR}
 # this date sets the limit on reporting used to seed forecasts
 DATELIM ?= 2020-03-25
 
-${PARDIR}/%-par.json: processWHO.R | ${INDIR}/latest-WHO.rds ${PARDIR}
-	Rscript $^ ${DATELIM} $| $(subst $*,,$(notdir $@))
+${VALDIR}/%-par.json: validate.R | ${VALDIR}
+	Rscript $^ $|
+
+VALREF := ${VALDIR}/SouthAfrica-par.json
+
+valpars: ${VALREF}
 
 PARREF := ${PARDIR}/SouthAfrica-par.json
 
@@ -64,6 +69,14 @@ hosp%.txt: %.txt
 	sed 's/bps$*/hosp$*/g' $^ > $@
 	sed -i '' 's/bpsamples/hosp/g' $@
 
+${BPDIRBASE}validate/%-bpsamples.rds: bpsample.R ${VALDIR}/%-par.json ${INDIR}/R2.json | ${BPDIRBASE}validate
+	${R}
+
+ALLVALPARS := $(notdir $(wildcard ${VALDIR}/*-pars.json))
+ALLVALSAMP := $(addprefix ${BPDIRBASE}validate/,$(subst pars.json,bpsamples.rds,${ALLVALPARS}))
+
+val.txt:
+	printf "%s\n" ${ALLVALSAMP} > $@
 
 
 

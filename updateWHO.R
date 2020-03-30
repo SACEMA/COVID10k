@@ -25,16 +25,8 @@ if (!file.exists(.args[1]) || (readRDS(.args[1])[.N, date] < ref[.N, Date])) {
     c("Sudan","Somalia","Djibouti","Tunisia","Morocco","Egypt")
   )
   
-  afr.deaths <- c(
-    ctys.deaths[
-      (which(ctys.deaths == "Region.EasternMediterranean.deaths")+1) :
-        (which(ctys.deaths == "Region.African.deaths")-1)
-      ],
-    sprintf("%s.deaths",c("Sudan","Somalia","Djibouti","Tunisia","Morocco","Egypt"))
-  )
-  
   SR <- melt(
-    ref[,.SD,.SDcols = intersect(colnames(ref), c(afr.cases, afr.deaths)), by=.(SituationReport, Date)],
+    ref[,.SD,.SDcols = intersect(colnames(ref), c(afr.cases)), by=.(SituationReport, Date)],
     id.vars = c('SituationReport','Date'), variable.factor = F
   )
   SR[, country := gsub("\\..+$","",variable) ]
