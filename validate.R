@@ -48,9 +48,11 @@ ctys <- unique(slice$country)
 
 mods <- lapply(ctys, function(cnty) {
   subslice <- slice[country == cnty]
+  day1K <- SRslice[country == cnty, date[which.max(value > 1000)]]
   list(
     locale = cnty,
     day0 = subslice[1, date]-1,
+    day1K = day1K,
     initial = rep(0:(dim(subslice)[1]-1), subslice$detected)
   )
 })
