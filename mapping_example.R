@@ -1,3 +1,5 @@
+# map the summary results - time to 1K and time to 10K
+
 require(tmap)
 
 dir <- "~/Dropbox/Covid-19-season/Shapefiles/Generalised/general_2013.shp" #"~/Dropbox/Covid-19-season/Rcode/Admin1(2011)/admin1.shp"
