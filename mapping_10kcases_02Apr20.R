@@ -82,6 +82,17 @@ admn0afr$k1jan <- as.numeric(difftime(admn0afr$k1,"2020-01-01"))
 admn0afr$k10jan <- as.numeric(difftime(admn0afr$k10,"2020-01-01"))
 cbind(as.character(admn0afr$CNTRY_TERR),as.character(admn0afr$k1),as.numeric(admn0afr$k1jan),as.numeric(admn0afr$k10jan))
 
+# update labels
+admn0afr$labels <- admn0afr$CNTRY_TERR
+levels(admn0afr$labels) <- c(levels(admn0afr$labels)," ","CAR","DR Congo","Tanzania")
+admn0afr$labels[admn0afr$CNTRY_TERR=="Cabo Verde" | admn0afr$CNTRY_TERR=="Comoros" | admn0afr$CNTRY_TERR=="Mayotte" |                   
+                admn0afr$CNTRY_TERR=="Mauritius" | admn0afr$CNTRY_TERR=="Réunion" | 
+                  admn0afr$CNTRY_TERR=="Seychelles" | 
+                  admn0afr$CNTRY_TERR=="Saint Helena" | admn0afr$CNTRY_TERR=="Sao Tome and Principe"] <- c(" ")
+admn0afr$labels[admn0afr$CNTRY_TERR=="Central African Republic"] <- "CAR"
+admn0afr$labels[admn0afr$CNTRY_TERR=="Democratic Republic of the Congo"] <- "DR Congo"
+admn0afr$labels[admn0afr$CNTRY_TERR=="United Republic of Tanzania"] <- "Tanzania"
+
 # plot expected date
 # we want to specify the breaks
 #vals <- 
@@ -91,13 +102,15 @@ brks <- seq(as.numeric(difftime(as.Date(c("23/03/2020"),"%d/%m/%Y"),"2020-01-01"
 l1 <- as.character(format(as.Date(brks,origin="2020-01-01"),"%b-%d"))
 labels <- paste0(l1[1:(length(l1)-1)]," to ",l1[2:(length(l1))])
   
+
 # 1k alone
-jpeg("~/Documents/GitHub/COVID10k/Plots/1k_3day_date.jpeg",height=1000,width=1200)
+jpeg("~/Documents/GitHub/COVID10k/Plots/1k_3day_name_date.jpeg",height=1000,width=1200)
 tm_shape(admn0afr) + tm_fill(title="Timing of first \n1,000 Covid-19 cases",
-                             textNA = "No cases reported",
-                             col="k1jan",palette="RdYlBu",breaks=brks,labels=labels) + 
+                             textNA = "No cases reported as of 23 March 2020",
+                             col="k1jan",palette="-YlOrRd",breaks=brks,labels=labels) + 
+  tm_text("labels",size=1.5) +
   tm_layout(legend.position=c("left","bottom"),legend.text.size=1.8,  # ok this is being recognised
-            legend.title.size=2.2)
+            legend.title.size=2.2,frame = FALSE)
 dev.off()
 
 # 1k alone with alpha
