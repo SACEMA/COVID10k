@@ -10,6 +10,7 @@ PARDIR := ${OUTDIR}/params
 VALDIR := ${OUTDIR}/valpars
 BPDIRBASE := ${OUTDIR}/bps
 HOSPDIRBASE := ${OUTDIR}/hosp
+FIGDIR := ${OUTDIR}/figs
 
 ${INDIR} ${OUTDIR} ${REPDIR} ${PARDIR} ${VALDIR} \
 ${BPDIRBASE}R2 ${BPDIRBASE}R3 ${BPDIRBASE}validate \
@@ -25,13 +26,6 @@ ${INDIR}/latest-WHO.rds: updateWHO.R | ${INDIR}
 
 # this date sets the limit on reporting used to seed forecasts
 DATELIM ?= 2020-03-25
-
-${VALDIR}/%-par.json: validate.R | ${VALDIR}
-	Rscript $^ $|
-
-VALREF := ${VALDIR}/SouthAfrica-par.json
-
-valpars: ${VALREF}
 
 PARREF := ${PARDIR}/SouthAfrica-par.json
 
@@ -52,6 +46,9 @@ ${BPDIRBASE}R3/%-bpsamples.rds: bpsample.R ${PARDIR}/%-par.json ${INDIR}/R3.json
 ${BPDIRBASE}%/bpmerge.rds: bpmerge.R $(wildcard ${BPDIRBASE}%/*-bpsamples.rds)
 	Rscript $< ${PARDIR} $@
 
+${BPDIRBASE}validate/bpmerge.rds: bpmerge.R $(wildcard ${BPDIRBASE}%/*-bpsamples.rds)
+	Rscript $< ${VALDIR} $@
+
 ${OUTDIR}/%digest.rds: digest.R ${INDIR}/%.json ${BPDIRBASE}%/bpmerge.rds
 	Rscript $< ${PARDIR} $@
 
@@ -69,21 +66,32 @@ hosp%.txt: %.txt
 	sed 's/bps$*/hosp$*/g' $^ > $@
 	sed -i '' 's/bpsamples/hosp/g' $@
 
-${BPDIRBASE}validate/%-bpsamples.rds: bpsample.R ${VALDIR}/%-par.json ${INDIR}/R2.json | ${BPDIRBASE}validate
+
+${VALDIR}/%-pars.json: validate.R | ${VALDIR}
+	Rscript $^ $|
+
+VALREF := ${VALDIR}/SouthAfrica-par.json
+
+valpars: ${VALREF}
+
+${BPDIRBASE}validate/%-bpsamples.rds: bpsample.R ${VALDIR}/%-pars.json ${INDIR}/validate.json | ${BPDIRBASE}validate
 	${R}
 
 ALLVALPARS := $(notdir $(wildcard ${VALDIR}/*-pars.json))
 ALLVALSAMP := $(addprefix ${BPDIRBASE}validate/,$(subst pars.json,bpsamples.rds,${ALLVALPARS}))
 
-val.txt:
+val.txt: | valpars
 	printf "%s\n" ${ALLVALSAMP} > $@
 
+${OUTDIR}/%digest.rds: digest.R ${INDIR}/%.json ${BPDIRBASE}%/bpmerge.rds
+	Rscript $^ $@
 
+${OUTDIR}/%quantiles.rds: ${OUTDIR}/%digest.rds
 
+${FIGDIR}/validation.png: figs/checkforecast.R ${OUTDIR}/validatequantiles.rds $(wildcard ${VALDIR}/*-pars.json) | ${VALDIR} ${FIGDIR}
+	Rscript $(wordlist 1,2,$^) $|
 
-
-
-
+forecastfig: ${OUTDIR}/validatedigest.rds ${FIGDIR}/validation.png
 
 
 default: ${OUTDIR}/R3-merge.rds ${OUTDIR}/R2-merge.rds figs
@@ -100,7 +108,7 @@ ${OUTDIR}/bpsamples-%.rds: bpsamples.R ${INDIR}/params.json | ${OUTDIR}
 ${OUTDIR}/digested.rds: digest.R ${INDIR}/params.json $(wildcard ${OUTDIR}/bpsamples-*.rds) | ${OUTDIR}
 	Rscript $(wordlist 1,2,$^) ${OUTDIR} $@
 
-$(patsubst %,${OUTDIR}/%.rds,distros quantiles incidence): ${OUTDIR}/digested.rds
+#$(patsubst %,${OUTDIR}/%.rds,distros quantiles incidence): ${OUTDIR}/digested.rds
 
 summaries: $(patsubst %,${OUTDIR}/%.rds,digested distros quantiles incidence hospitalization)
 

@@ -1,3 +1,6 @@
+# OSX junk
+*.DS_Store
+
 # local make variables
 local.make
 

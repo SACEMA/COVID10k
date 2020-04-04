@@ -4,8 +4,8 @@ suppressPackageStartupMessages({
 })
 
 .args <- if (interactive()) c(
-  "/Users/carlpearson/Dropbox/COVIDSA/outputs/params",
-  "/Users/carlpearson/Dropbox/COVIDSA/outputs/bpsR2/bpmerge.rds"
+  "/Users/carlpearson/Dropbox/COVIDSA/outputs/valpars",
+  "/Users/carlpearson/Dropbox/COVIDSA/outputs/bpsvalidate/bpmerge.rds"
 ) else commandArgs(trailingOnly = TRUE)
 
 parsfls <- list.files(.args[1], "\\.json", full.names = TRUE)

@@ -9,6 +9,6 @@
       "meanX": 4.7, "sdX": 2.9
     }
   },
-  "samples": 1e4,
+  "samples": 1e3,
   "target": 1e4
 }

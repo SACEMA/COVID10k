@@ -52,7 +52,13 @@ subqs.dt <- subbars[,{
   c(as.list(qs+as.Date("1970-01-01")), measure = "cumcases")
 }, keyby=.(country, value) ]
 
-saveRDS(lines.dt, tail(.args, 1))
-saveRDS(bars.dt, gsub("digest","distros",tail(.args, 1)))
-saveRDS(qs.dt, gsub("digest","quantiles",tail(.args, 1)))
-saveRDS(.res[,.(incidence), keyby=.(sample_id, day)], gsub("(/)?\\w+\\.rds","\\1incidence.rds",tail(.args, 1)))
+saveRDS(sublines, tail(.args, 1))
+saveRDS(subbars, gsub("digest","distros",tail(.args, 1)))
+saveRDS(subqs.dt, gsub("digest","quantiles",tail(.args, 1)))
+
+saveRDS(lines.dt, gsub("digest","digest-ext",tail(.args, 1)))
+saveRDS(bars.dt, gsub("digest","distros-ext",tail(.args, 1)))
+saveRDS(qs.dt, gsub("digest","quantiles-ext",tail(.args, 1)))
+
+
+#saveRDS(.res[,.(incidence), keyby=.(sample_id, day)], gsub("(/)?\\w+\\.rds","\\1incidence.rds",tail(.args, 1)))
