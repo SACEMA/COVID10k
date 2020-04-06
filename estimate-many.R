@@ -5,7 +5,8 @@ suppressPackageStartupMessages({
 })
 
 .args <- if (interactive()) c(
-  "~/Dropbox/COVIDSA/outputs/R2quantiles.rds", "~/Dropbox/COVIDSA/figs/estimate-all.png"
+  "~/Dropbox/COVIDSA/outputs/R2quantiles.rds",
+  "~/Dropbox/COVIDSA/figs/estimate-all.jpg"
 ) else commandArgs(trailingOnly = TRUE)
 
 # fns <- grep("SouthAfrica", list.files(.args[1], "-quantiles\\.rds$"), value = TRUE, invert = TRUE)
@@ -20,6 +21,8 @@ qs.dt <- readRDS(.args[1])
 #   res$country <- cty
 #   res
 # }))
+
+fwrite(qs.dt, gsub("\\.[^\\.]+$",".csv", tail(.args, 1)))
 
 bars <- qs.dt
 bars[country == "UnitedRepublicofTanzania", country := "Tanzania"]
@@ -39,25 +42,38 @@ bars.p <- copy(bars)[, cty := factor(country, levels = rev(lvls), ordered = TRUE
 
 shft <- 0.1
 
-p <- ggplot(bars.p) + aes(color=as.character(value)) +
-  geom_segment(
-    aes(y=as.integer(cty)+shft, yend=as.integer(cty)+shft, x=lo, xend=hi),
-    data = function(dt) dt[value == 1000],
-    size = 3, alpha = 0.5
-  ) +
-  geom_segment(
-    aes(y=as.integer(cty)+shft, yend=as.integer(cty)+shft, x=lo.lo, xend=hi.hi),
-    data = function(dt) dt[value == 1000],
-    size = 1, alpha = 0.5
-  ) +
+brks <- c(1, seq(90, by=3, length.out = 8), 1000)
+
+lbref <- as.Date("2020-01-01") + brks
+lbls <- c(
+  sprintf("by %s", format(lbref[2],"%b %d")),
+  sprintf("%s-%s", format(head(lbref[-1], -2)+1,"%b %d"), format(head(lbref[-c(1,2)], -1),"%b %d")),
+  sprintf("after %s", format(tail(lbref, 2)[1], "%b %d"))
+)
+
+bars.p[value == 1000,
+  div := cut(as.numeric(med-as.Date("2020-01-01")), brks)
+]
+
+p <- ggplot(bars.p) + aes() +
   geom_segment(
     aes(y=as.integer(cty)-shft, yend=as.integer(cty)-shft, x=lo, xend=hi),
     data = function(dt) dt[value == 10000],
-    size = 3, alpha = 0.5
+    size = 2.5, alpha = 0.9, color = "grey"
+  ) +
+  geom_segment(
+    aes(y=as.integer(cty)+shft, yend=as.integer(cty)+shft, x=lo, xend=hi, color=div),
+    data = function(dt) dt[value == 1000],
+    size = 2.5, alpha = 0.9
   ) +
   geom_segment(
     aes(y=as.integer(cty)-shft, yend=as.integer(cty)-shft, x=lo.lo, xend=hi.hi),
     data = function(dt) dt[value == 10000],
+    size = 1, alpha = 0.5, color = "grey"
+  ) +
+  geom_segment(
+    aes(y=as.integer(cty)+shft, yend=as.integer(cty)+shft, x=lo.lo, xend=hi.hi, color=div),
+    data = function(dt) dt[value == 1000],
     size = 1, alpha = 0.5
   ) +
   geom_vline(aes(xintercept=as.Date("2020-03-25")), color = "red", linetype = "dashed", alpha = 0.5) +
@@ -67,19 +83,22 @@ p <- ggplot(bars.p) + aes(color=as.character(value)) +
     "2020-05-15", "2020-06-01"
   )), date_labels = "%d %b") +
   scale_y_continuous(breaks = 1:length(lvls), labels = rev(lvls), expand = expansion(add=0.5)) +
-  scale_color_manual(
-    "date reporting...",
-    values = c(`1000`="goldenrod", `10000`="firebrick"),
-    labels = function(b) sprintf("%s cases", b),
-    aesthetics = c("color", "fill")
+  scale_color_brewer(
+    "Median date\nof 1000 cases",
+    palette = "YlOrRd", direction = -1,
+    labels = lbls
+    #labels = function(b) sprintf("%s cases", b),
+    #aesthetics = c("color", "fill")
   ) +
   theme_minimal() + theme(
     axis.title.y = element_blank(),
     panel.grid.minor = element_blank(),
-    legend.position = c(.9, .9),
+    legend.position = c(.9, 1),
     legend.justification = c(1, 1)
   )
 
-fwrite(bars, gsub("\\.png",".csv", tail(.args, 1)))
-
-save_plot(tail(.args, 1), p, base_width = 7.5, base_height = 8, nrow=1, ncol=1)
+save_plot(tail(.args, 1), p,
+  base_height = 6.7, base_asp = 7.5/8,
+  nrow=1, ncol=1,
+  dpi=600
+)

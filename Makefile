@@ -93,12 +93,9 @@ ${FIGDIR}/validation.png: figs/checkforecast.R ${OUTDIR}/validatequantiles.rds $
 
 forecastfig: ${OUTDIR}/validatedigest.rds ${FIGDIR}/validation.png
 
-
 default: ${OUTDIR}/R3-merge.rds ${OUTDIR}/R2-merge.rds figs
 
-dirs: ${INDIR} ${OUTDIR}
-
-R = Rscript $^ $@
+dirs: ${INDIR} ${OUTDIR} ${FIGDIR}
 
 # create the branching process samples
 ${OUTDIR}/bpsamples-%.rds: bpsamples.R ${INDIR}/params.json | ${OUTDIR}
@@ -118,9 +115,10 @@ estimates.png: estimate.R \
 	${R}
 
 # use the branching samples to estimate dates for 1k, 10k cases
-estimates-all.png: estimate-many.R ${OUTDIR} ${OUTDIR}/quantiles.rds
+${FIGDIR}/estimate-all.jpg ${FIGDIR}/estimate-all.png: estimate-many.R ${OUTDIR}/R2quantiles.rds
 	${R}
 
+${FIGDIR}/estimate-all.csv: ${FIGDIR}/estimate-all.png
 
 .PHONY: showday
 
@@ -195,5 +193,7 @@ deathsDate: deathsOn.R
 estimates-allR3.png: estimate-manyR3.R ${OUTDIR}
 	${R}
 
+${FIGDIR}/map_inset.png: mapping_cases.R Shapefiles/Detailed/detailed_2013.shp ${FIGDIR}/estimate-all.csv
+	${R}
 
-figs: estimates.png estimates-all.png
+figs: ${FIGDIR}/estimate-all.png ${FIGDIR}/map_inset.png
